@@ -24,14 +24,6 @@ pipeline
         SNYK_TOKEN  = credentials('snyk')
 
         CLUSTER_NAME  = "${params.CLUSTER_NAME}"
-    
-        MYSQL_ROOT_PASSWORD = credentials('MYSQL_ROOT_PASSWORD')
-        MYSQL_DATABASE      = "muziquedevops"
-        MYSQL_USER          = "muzique"
-        MYSQL_PASSWORD      = credentials('MYSQL_PASSWORD')
-        MYSQL_HOST          = credentials('MYSQL_HOST')
-        MYSQL_PORT          = "3306"
-        SECRET_KEY          = credentials('SECRET_KEY')
     }
     stages {
         stage('Git Checkout') {
@@ -64,14 +56,14 @@ pipeline
             steps {
                 script {
                     def serviceNameMap = [
-                        'auth' : 'auth-service-service',
-                        'user' : 'user-service-service',
-                        'task' : 'task-service-service'
-                    ]
-                    def taskDefMap = [
                         'auth' : 'auth-service',
                         'user' : 'user-service',
-                        'task' : 'user-service'
+                        'task' : 'task-service'
+                    ]
+                    def taskDefMap = [
+                        'auth' : 'auth-service-definition',
+                        'user' : 'task-service-definition',
+                        'task' : 'user-service-definition'
                     ]
                     def serviceMap = [
                             'auth' : 'user-service/auth', 
@@ -79,9 +71,9 @@ pipeline
                             'task' :  'task-service/'
                     ]
                     def portMap = [
-                            'auth' : 8000,
-                            'user' : 8000,
-                            'task' : 8000
+                            'auth' : 8080,
+                            'user' : 8080,
+                            'task' : 8080
                     ]
                     env.SERVICE_NAME = serviceNameMap[env.SERVICES]
                     env.TASK_DEF_NAME = taskDefMap[env.SERVICES]
@@ -99,8 +91,8 @@ pipeline
             }
             steps {
                 withSonarQubeEnv('sonar-server') {
-                sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Muzique_Frontend \
-                    -Dsonar.projectKey=Muzique-fe
+                sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Muzique_Backend \
+                    -Dsonar.projectKey=Muzique-be
                 '''
                 }
             }
