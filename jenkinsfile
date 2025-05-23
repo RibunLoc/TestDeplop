@@ -215,21 +215,11 @@ pipeline
                             --query 'taskDefinition' > task-def.json
 
                         # Cập nhật image bằng jq
-                        jq --arg IMAGE "$REPO_NAME" --arg NAME "$REPO_IMAGE" task-def.json > new-task-def.json <<'EOF'
-                        .containerDefinitions |= map(
-                        if .name == $NAME then .image = $IMAGE else . end
-                        )
-                        | {
-                            family,
-                            containerDefinitions,
-                            executionRoleArn: select(.executionRoleArn != null),
-                            taskRoleArn: select(.taskRoleArn != null),
-                            networkMode: select(.networkMode != null),
-                            requiresCompatibilities: select(.requiresCompatibilities != null),
-                            cpu: select(.cpu != null),
-                            memory: select(.memory != null)
-                        }
-                        EOF
+                        cat task-def.json \
+                        | jq --arg IMAGE "$REPO_NAME" --arg NAME "$REPO_IMAGE" \
+                        '.taskDefinition.containerDefinitions |= map(if .name == $NAME then .image = $IMAGE else . end)
+                        | {family: .taskDefinition.family, containerDefinitions, executionRoleArn: .taskDefinition.executionRoleArn, taskRoleArn: .taskDefinition.taskRoleArn, networkMode: .taskDefinition.networkMode, requiresCompatibilities: .taskDefinition.requiresCompatibilities, cpu: .taskDefinition.cpu, memory: .taskDefinition.memory}' \
+                        > new-task-def.json
 
 
                         # Đăng ký revision mới
