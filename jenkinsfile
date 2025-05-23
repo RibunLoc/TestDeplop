@@ -228,17 +228,17 @@ pipeline
 
                         # Tạo file JSON mới bằng jq
                         cat task-def.json | jq \
-                            --arg IMAGE "$REPO_NAME" \
-                            --arg NAME "$REPO_IMAGE" \
+                            --arg IMAGE "\$REPO_NAME" \
+                            --arg NAME "\$REPO_IMAGE" \
                             --slurpfile NEW_ENVS envs.json \
                         '
                         .containerDefinitions |= map(
-                            if .name == $NAME then
-                            .image = $IMAGE
+                            if .name == \$NAME then
+                            .image = \$IMAGE
                             | .environment |= (
-                                reduce $NEW_ENVS[] as $new_var (
-                                    map(if .name == $new_var.name then .value = $new_var.value else . end);
-                                    if any(.name == $new_var.name; true) then . else . + [$new_var] end
+                                reduce $NEW_ENVS[0][] as $new_var (
+                                    map(if .name == $new_var.name then .value = $new_var.value else . end)
+                                    | if any(.name == $new_var.name; true) then . else . + [$new_var] end
                                 )
                                 )
                             else .
@@ -266,7 +266,7 @@ pipeline
                         
                         # Loại bỏ env.json
                         rm -rf envs.json task-def.json new-task-def.json register-task.json
-                        
+
                         echo "Done"
                     """
                 }
