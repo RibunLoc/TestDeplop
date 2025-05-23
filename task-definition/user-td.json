@@ -1,0 +1,57 @@
+{
+  "family": "user-service-muzique",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/myAppRole",
+  "containerDefinitions": [
+    {
+      "name": "$REPO_IMAGE",
+      "image": "$REPO_NAME",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "MYSQL_ROOT_PASSWORD",
+          "value": "${MYSQL_ROOT_PASSWORD}"
+        },
+        {
+          "name": "MYSQL_DATABASE",
+          "value": ""
+        },
+        {
+          "name": "MYSQL_USER",
+          "value": ""
+        },
+        {
+          "name": "MYSQL_HOST",
+          "value": ""
+        },
+        {
+          "name": "MYSQL_PORT" ,
+          "value":  ""
+        },
+        {
+          "name": "SECRET_KEY=devops",
+          "value": ""
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/my-single-container-task",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
