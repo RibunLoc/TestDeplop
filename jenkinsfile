@@ -207,17 +207,16 @@ pipeline
             }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                    sh """
+                    sh '''
                         echo "Deploying to development..."
 
                         aws ecs describe-task-definition \
-                            --task-definition \$TASK_DEF_NAME \
+                            --task-definition $TASK_DEF_NAME \
                             --query 'taskDefinition' > task-def.json
 
                         # Cập nhật image bằng jq
-                            jq --arg IMAGE "\$REPO_NAME" --arg NAME "\$REPO_IMAGE"
-                            -f - task-def.json > new-task-def.json <<'EOF'
-                                .containerDefinitions |= map(
+                            jq --arg IMAGE "$REPO_NAME" --arg NAME "$REPO_IMAGE" -f - task-def.json > new-task-def.json <<'EOF'
+                            .containerDefinitions |= map(
                                 if .name == $NAME then .image = $IMAGE else . end
                                 )
                                 | {
@@ -236,15 +235,15 @@ pipeline
                         aws ecs register-task-definition --cli-input-json file://new-task-def.json > register-task.json
 
                         # Triển khai revision mới
-                        NEW_REVISION=\$(jq -r '.taskDefinition.revision' register-task.json)
+                        NEW_REVISION=$(jq -r '.taskDefinition.revision' register-task.json)
 
                         aws ecs update-service \
-                            --cluster \$CLUSTER_NAME \
-                            --service \$SERVICE_NAME \
-                            --task-definition \$TASK_DEF_NAME:\$NEW_REVISION
+                            --cluster $CLUSTER_NAME \
+                            --service $SERVICE_NAME \
+                            --task-definition $TASK_DEF_NAME:$NEW_REVISION
 
-                        echo "Đã triển khai revision \$NEW_REVISION cho service \$SERVICE_NAME"
-                    """
+                        echo "Đã triển khai revision $NEW_REVISION cho service $SERVICE_NAME"
+                    '''
                 }
             }
         }
