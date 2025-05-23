@@ -76,7 +76,7 @@ pipeline
                     def serviceMap = [
                             'auth' : 'user-service/auth', 
                             'user' : 'user-service/user',
-                            'task' :  'task-service'
+                            'task' :  'task-service/'
                     ]
                     def portMap = [
                             'auth' : 8000,
@@ -225,8 +225,8 @@ pipeline
                             | {
                                 family: .family,
                                 containerDefinitions,
-                                executionRoleArn: .executionRoleArn,
-                                taskRoleArn: .taskRoleArn,
+                                executionRoleArn: select(.executionRoleArn != null),
+                                taskRoleArn: select(.taskRoleArn != null),
                                 networkMode: .networkMode,
                                 requiresCompatibilities: .requiresCompatibilities,
                                 cpu: .cpu,
