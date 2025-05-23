@@ -22,8 +22,6 @@ pipeline
     environment {
         AWS_REGION  = "${params.AWS_REGION}"
         SNYK_TOKEN  = credentials('snyk')
-        REPO_NAME   = "${params.REPO_DOCKER_USER}/muzique-${params.SERVICES}-service:${params.TAG}"
-        REPO_IMAGE  = "muzique-${params.SERVICES}-service"
 
         CLUSTER_NAME  = "${params.CLUSTER_NAME}"
     
@@ -66,14 +64,14 @@ pipeline
             steps {
                 script {
                     def serviceNameMap = [
-                        'auth' : 'auth-service-muzique',
-                        'user' : 'user-service-muzique',
-                        'task' : 'task-service-muzique'
+                        'auth' : 'auth-service',
+                        'user' : 'user-service',
+                        'task' : 'task-service'
                     ]
                     def taskDefMap = [
-                        'auth' : 'task-definition-auth-muzique',
-                        'user' : 'task-definition-user-muzique',
-                        'task' : 'task-definition-task-muzique'
+                        'auth' : 'auth-service',
+                        'user' : 'user-service',
+                        'task' : 'user-service'
                     ]
                     def serviceMap = [
                             'auth' : 'user-service/auth', 
@@ -89,6 +87,9 @@ pipeline
                     env.TASK_DEF_NAME = taskDefMap[env.SERVICES]
                     env.DIR_NAME = serviceMap[env.SERVICES]
                     env.PORT = portMap[env.SERVICES]
+                    env.REPO_IMAGE = "muzique-${env.SERVICES}-service"
+                    env.REPO_NAME = "${params.REPO_DOCKER_USER}/muzique-${env.SERVICES}-service:${params.TAG}"
+
                 }
             }
         }
@@ -213,23 +214,23 @@ pipeline
                         --query 'taskDefinition' > task-def.json
 
                         # Tạo biến môi trường mới
-                        NEW_ENVS=\"
-                        [
-                            {\\\"name\\\": \\\"MYSQL_ROOT_PASSWORD\\\", \\\"value\\\": \\\"$MYSQL_ROOT_PASSWORD\\\"},
-                            {\\\"name\\\": \\\"MYSQL_DATABASE\\\", \\\"value\\\": \\\"$MYSQL_DATABASE\\\"},
-                            {\\\"name\\\": \\\"MYSQL_USER\\\", \\\"value\\\": \\\"$MYSQL_USER\\\"},
-                            {\\\"name\\\": \\\"MYSQL_PASSWORD\\\", \\\"value\\\": \\\"$MYSQL_PASSWORD\\\"},
-                            {\\\"name\\\": \\\"MYSQL_HOST\\\", \\\"value\\\": \\\"$MYSQL_HOST\\\"},
-                            {\\\"name\\\": \\\"MYSQL_PORT\\\", \\\"value\\\": \\\"$MYSQL_PORT\\\"},
-                            {\\\"name\\\": \\\"SECRET_KEY\\\", \\\"value\\\": \\\"$SECRET_KEY\\\"}
-                        ]
-                        \"
+                        cat <<EOF > envs.json
+                            [
+                            { "name": "MYSQL_ROOT_PASSWORD", "value": "$MYSQL_ROOT_PASSWORD" },
+                            { "name": "MYSQL_DATABASE", "value": "$MYSQL_DATABASE" },
+                            { "name": "MYSQL_USER", "value": "$MYSQL_USER" },
+                            { "name": "MYSQL_PASSWORD", "value": "$MYSQL_PASSWORD" },
+                            { "name": "MYSQL_HOST", "value": "$MYSQL_HOST" },
+                            { "name": "MYSQL_PORT", "value": "$MYSQL_PORT" },
+                            { "name": "SECRET_KEY", "value": "$SECRET_KEY" }
+                            ]
+                        EOF
 
                         # Tạo file JSON mới bằng jq
                         cat task-def.json | jq \
                             --arg IMAGE "$REPO_NAME" \
                             --arg NAME "$REPO_IMAGE" \
-                            --argjson NEW_ENVS "$NEW_ENVS" \
+                            --slurpfile NEW_ENVS envs.json \
                         '
                         .containerDefinitions |= map(
                             if .name == $NAME then
@@ -255,12 +256,16 @@ pipeline
                         }
                         ' > new-task-def.json
 
+
                         # Đăng ký revision mới
                         aws ecs register-task-definition --cli-input-json file://new-task-def.json > register-task.json
                         
                         # Update ECS service
                         NEW_REVISION=\$(jq -r '.taskDefinition.revision' register-task.json)
                         aws ecs update-service --cluster $CLUSTER_NAME --service ${env.SERVICE_NAME} --task-definition ${env.TASK_DEF_NAME}:$NEW_REVISION
+                        
+                        # Loại bỏ env.json
+                        rm -rf envs.json task-def.json new-task-def.json register-task.json
                         
                         echo "Done"
                     """
