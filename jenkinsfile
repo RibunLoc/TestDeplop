@@ -199,7 +199,7 @@ pipeline
             }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                    sh '''
+                    sh """
                         echo "Deploying to development..."
 
                         aws ecs describe-task-definition \
@@ -248,7 +248,7 @@ pipeline
                             --task-definition $TASK_DEF_NAME:$NEW_REVISION
 
                         echo "Đã triển khai revision $NEW_REVISION cho service $SERVICE_NAME"
-                    '''
+                    """
                 }
             }
         }
