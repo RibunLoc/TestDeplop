@@ -62,8 +62,8 @@ pipeline
                     ]
                     def taskDefMap = [
                         'auth' : 'auth-service-definition',
-                        'user' : 'task-service-definition',
-                        'task' : 'user-service-definition'
+                        'user' : 'user-service-definition',
+                        'task' : 'task-service-definition'
                     ]
                     def serviceMap = [
                             'auth' : 'user-service/auth', 
