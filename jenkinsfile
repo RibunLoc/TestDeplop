@@ -255,7 +255,7 @@ pipeline
                         aws ecs register-task-definition --cli-input-json file://new-task-def.json > register-task.json
                         
                         # Update ECS service
-                        NEW_REVISION=$(jq -r '.taskDefinition.revision' register-task.json)
+                        NEW_REVISION=\$(jq -r '.taskDefinition.revision' register-task.json)
                         aws ecs update-service --cluster $CLUSTER_NAME --service ${env.SERVICE_NAME} --task-definition ${env.TASK_DEF_NAME}:$NEW_REVISION
                         
                         echo "Done"
