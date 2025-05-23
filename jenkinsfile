@@ -223,14 +223,14 @@ pipeline
                             if .name == \$NAME then .image = \$IMAGE else . end
                             )
                             | {
-                                family: .taskDefinition.family,
+                                family: .family,
                                 containerDefinitions,
-                                executionRoleArn: .taskDefinition.executionRoleArn,
-                                taskRoleArn: .taskDefinition.taskRoleArn,
-                                networkMode: .taskDefinition.networkMode,
-                                requiresCompatibilities: .taskDefinition.requiresCompatibilities,
-                                cpu: .taskDefinition.cpu,
-                                memory: .taskDefinition.memory
+                                executionRoleArn: .executionRoleArn,
+                                taskRoleArn: .taskRoleArn,
+                                networkMode: .networkMode,
+                                requiresCompatibilities: .requiresCompatibilities,
+                                cpu: .cpu,
+                                memory: .memory
                             }
                             ' > new-task-def.json
 
