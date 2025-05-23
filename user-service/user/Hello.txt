@@ -1,1 +1,0 @@
-Xin chào mọi người
