@@ -222,15 +222,15 @@ pipeline
                                 if .name == $NAME then .image = $IMAGE else . end
                             )
                             | {
-                                family,
+                                family: .family,
                                 containerDefinitions,
-                                executionRoleArn: select(.executionRoleArn != null),
-                                taskRoleArn: select(.taskRoleArn != null),
-                                networkMode: select(.networkMode != null),
-                                requiresCompatibilities: select(.requiresCompatibilities != null),
-                                cpu: select(.cpu != null),
-                                memory: select(.memory != null)
-                                }
+                                executionRoleArn: .executionRoleArn,
+                                taskRoleArn: .taskRoleArn,
+                                networkMode: s.networkMode,
+                                requiresCompatibilities: .requiresCompatibilitie,
+                                cpu: .cpu,
+                                memory: .memory
+                            }
                             ' task-def.json > new-task-def.json
 
 
