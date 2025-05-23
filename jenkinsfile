@@ -222,14 +222,14 @@ pipeline
                                 if .name == $NAME then .image = $IMAGE else . end
                             )
                             | {
-                                family: .family,
+                                family,
                                 containerDefinitions,
-                                executionRoleArn: .executionRoleArn,
-                                taskRoleArn: .taskRoleArn,
-                                networkMode: s.networkMode,
-                                requiresCompatibilities: .requiresCompatibilitie,
-                                cpu: .cpu,
-                                memory: .memory
+                                executionRoleArn: (if (.executionRoleArn? | type == "string") then .executionRoleArn else empty end),
+                                taskRoleArn: (if (.taskRoleArn? | type == "string") then .taskRoleArn else empty end),
+                                networkMode: (if (.networkMode? | type == "string") then .networkMode else empty end),
+                                requiresCompatibilities: (if (.requiresCompatibilities? | type == "array") then .requiresCompatibilities else empty end),
+                                cpu: (if (.cpu? | type == "string") then .cpu else empty end),
+                                memory: (if (.memory? | type == "string") then .memory else empty end)
                             }
                             ' task-def.json > new-task-def.json
 
@@ -257,7 +257,6 @@ pipeline
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                     sh """
-                       
                         echo "Done"
                     """
                 }
