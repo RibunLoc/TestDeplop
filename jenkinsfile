@@ -50,9 +50,9 @@ pipeline
                     env.SERVICES = detectServices
 
                     def secretMap = [
-                        'user': "arn:aws:secretsmanager:us-east-1:637423177516:secret:muzique/user/env-vYkVs5",
-                        'auth': "arn:aws:secretsmanager:us-east-1:637423177516:secret:muzique/user/env-vYkVs5",
-                        'task': "arn:aws:secretsmanager:us-east-1:637423177516:secret:muzique/task/env-UamY3l"
+                        'user': "arn:aws:secretsmanager:us-east-1:140023408078:secret:muzique/user/env-G1FRne",
+                        'auth': "arn:aws:secretsmanager:us-east-1:140023408078:secret:muzique/user/env-G1FRne",
+                        'task': "arn:aws:secretsmanager:us-east-1:140023408078:secret:muzique/task/env-LGgDyH"
                     ]
                     if (!secretMap.containsKey(env.SERVICES)) {
                         error("Unknown service: ${env.SERVICES}")
