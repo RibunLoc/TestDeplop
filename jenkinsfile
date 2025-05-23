@@ -15,7 +15,7 @@ pipeline
         string(name: 'TAG', defaultValue: 'v1.0', description: 'Tag docker images ex(image:TAG)')
         // choice(name: 'SERVICES', choices: ['auth', 'user', 'task'], description: 'Choice service')
 
-        string(name: 'CLUSTER_NAME', defaultValue: 'muzique-cluster1', description: 'Name ECS cluster')
+        string(name: 'CLUSTER_NAME', defaultValue: 'muzique-cluster', description: 'Name ECS cluster')
         // string(name: 'SERVICE_NAME', defaultValue: 'web-front-end-muzique-123', description: 'Name service on ECS')
         // string(name: 'TASK_DEF_NAME', defaultValue: 'task-definition-web-muzique', description: 'Name task definition ECS')
     }
