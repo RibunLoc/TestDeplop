@@ -178,7 +178,7 @@ pipeline
                     {
                         sh """
                             echo "Run contaienr test in jenkins: "
-                            docker run -d --name $REPO_IMAGE  -p ${env.PORT}:8080 "$REPO_NAME"
+                            docker run -d --name $REPO_IMAGE  -p 8000:8080 "$REPO_NAME"
                         """
                     }
                 }
