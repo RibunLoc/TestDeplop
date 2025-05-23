@@ -49,6 +49,16 @@ pipeline
                         error("Cannot find services need to update!")
                     }
                     env.SERVICES = detectServices
+
+                    def secretMap = [
+                        'user': "arn:aws:secretsmanager:us-east-1:637423177516:secret:muzique/user/env-vYkVs5",
+                        'auth': "arn:aws:secretsmanager:us-east-1:637423177516:secret:muzique/user/env-vYkVs5",
+                        'task': "arn:aws:secretsmanager:us-east-1:637423177516:secret:muzique/task/env-UamY3l"
+                    ]
+                    if (!secretMap.containsKey(env.SERVICES)) {
+                        error("Unknown service: ${env.SERVICES}")
+                    }
+                    env.SECRET_ARN = secretMap[env.SERVICES]
                 }
             }
         }
@@ -200,18 +210,21 @@ pipeline
                         # Cập nhật image bằng jq
                         jq --arg IMAGE "$REPO_NAME" \
                             --arg NAME "$REPO_IMAGE" \
-                            --arg SECRET_ARN "arn:aws:secretsmanager:us-east-1:637423177516:secret:muzique/user/env-vYkVs5" \
-                            '
+                            --arg SECRET_ARN "$ARN_SECRET" '
                             .containerDefinitions |= map(
                                 if .name == $NAME then
-                                    .image = $IMAGE |
-                                    .secrets = [
+                                .image = $IMAGE |
+                                . + {
+                                    secrets: [
                                     {
-                                        "name": "APP_ENV",
-                                        "valueFrom": $SECRET_ARN
+                                        name: "APP_ENV",
+                                        valueFrom: $SECRET_ARN
                                     }
                                     ]
-                                else . end
+                                }
+                                else
+                                .
+                                end
                             )
                             | {
                                 family,
@@ -222,8 +235,7 @@ pipeline
                                 requiresCompatibilities,
                                 cpu,
                                 memory
-                            }
-                            ' task-def.json > new-task-def.json
+                            }' task-def.json > new-task-def.json
                             
                         # Đăng ký revision mới
                         aws ecs register-task-definition --cli-input-json file://new-task-def.json > register-task.json
