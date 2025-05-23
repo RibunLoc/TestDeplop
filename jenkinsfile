@@ -226,13 +226,12 @@ pipeline
                                     containerDefinitions,
                                     executionRoleArn: select(.executionRoleArn != null),
                                     taskRoleArn: select(.taskRoleArn != null),
-                                    networkMode: select(.networkMode != null),  
+                                    networkMode: select(.networkMode != null),
                                     requiresCompatibilities: select(.requiresCompatibilities != null),
                                     cpu: select(.cpu != null),
                                     memory: select(.memory != null)
                                 }
-                                ' > new-task-def.json
-                            EOF
+                                EOF
 
                         # Đăng ký revision mới
                         aws ecs register-task-definition --cli-input-json file://new-task-def.json > register-task.json
