@@ -14,7 +14,7 @@ pipeline
         string(name: 'REPO_DOCKER_USER', defaultValue: 'ribun', description: 'user Docker Hub')
         string(name: 'TAG', defaultValue: 'v1.0', description: 'Tag docker images ex(image:TAG)')
         string(name: 'CLUSTER_NAME', defaultValue: 'muzique-cluster', description: 'Name ECS cluster')
-        
+
     }
     environment {
         AWS_REGION  = "${params.AWS_REGION}"
@@ -197,7 +197,7 @@ pipeline
             }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                    sh '''
+                    sh """
                         echo "Deploying to development..."
 
                         aws ecs describe-task-definition \
@@ -207,7 +207,7 @@ pipeline
                         # Cập nhật image bằng jq
                         jq --arg IMAGE "$REPO_NAME" \
                             --arg NAME "$REPO_IMAGE" \
-                            --arg SECRET_ARN "$ARN_SECRET" '
+                            --arg SECRET_ARN "$SECRET_ARN" '
                             .containerDefinitions |= map(
                                 if .name == $NAME then
                                 .image = $IMAGE |
@@ -246,7 +246,7 @@ pipeline
                             --task-definition $TASK_DEF_NAME:$NEW_REVISION
 
                         echo "Đã triển khai revision $NEW_REVISION cho service $SERVICE_NAME"
-                    '''
+                    """
                 }
             }
         }
