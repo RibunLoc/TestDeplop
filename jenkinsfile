@@ -64,9 +64,9 @@ pipeline
             steps {
                 script {
                     def serviceNameMap = [
-                        'auth' : 'auth-service',
-                        'user' : 'user-service',
-                        'task' : 'task-service'
+                        'auth' : 'auth-service-service',
+                        'user' : 'user-service-service',
+                        'task' : 'task-service-service'
                     ]
                     def taskDefMap = [
                         'auth' : 'auth-service',
