@@ -112,7 +112,7 @@ pipeline
                 }
             }
         }
-        stage('Snyk Test - App (npm)') {
+        stage('Snyk Test - App') {
             steps {
                 dir(env.DIR_NAME) {
                     sh '''
@@ -147,7 +147,6 @@ pipeline
                                 docker push $REPO_NAME
                             '''
                         }
-                       
                     }
                 }
             }
@@ -224,8 +223,7 @@ pipeline
                                 memory: (if (.memory? | type == "string") then .memory else empty end)
                             }
                             ' task-def.json > new-task-def.json
-
-
+                            
                         # Đăng ký revision mới
                         aws ecs register-task-definition --cli-input-json file://new-task-def.json > register-task.json
 
@@ -248,9 +246,9 @@ pipeline
             }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                    sh """
+                    sh '''
                         echo "Done"
-                    """
+                    '''
                 }
             }
         }
