@@ -13,10 +13,8 @@ pipeline
         string(name: 'AWS_REGION', defaultValue: 'us-east-1', description: 'AWS REGION FOR ECR')
         string(name: 'REPO_DOCKER_USER', defaultValue: 'ribun', description: 'user Docker Hub')
         string(name: 'TAG', defaultValue: 'v1.0', description: 'Tag docker images ex(image:TAG)')
-
-
         string(name: 'CLUSTER_NAME', defaultValue: 'muzique-cluster', description: 'Name ECS cluster')
-
+        
     }
     environment {
         AWS_REGION  = "${params.AWS_REGION}"
@@ -106,37 +104,37 @@ pipeline
                 }
             }
         }
-        // stage('QUALITY GATE') {
-        //     steps {
-        //         script {
-        //             waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
-        //         }
-        //     }
-        // }
-        // stage('Snyk Test - App') {
-        //     steps {
-        //         dir(env.DIR_NAME) {
-        //             sh '''
-        //                 snyk auth $SNYK_TOKEN
-        //                 snyk test --all-project --severity-threshold=medium --json > ./reports/snyk-report.json || true
-        //             '''
-        //         }
-        //     }
-        // }
-        // stage('Snyk Monitor') {
-        //     steps {
-        //         dir(env.DIR_NAME) {
-        //             sh 'snyk monitor --all-project'
-        //         }
-        //     }
-        // }
-        // stage('Trivy FS scan') {
-        //     steps {
-        //         dir(env.DIR_NAME) {
-        //             sh "trivy fs . > trivyfs.json || true"
-        //         }
-        //     }
-        // }
+        stage('QUALITY GATE') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+        stage('Snyk Test - App') {
+            steps {
+                dir(env.DIR_NAME) {
+                    sh '''
+                        snyk auth $SNYK_TOKEN
+                        snyk test --all-project --severity-threshold=medium --json > ./reports/snyk-report.json || true
+                    '''
+                }
+            }
+        }
+        stage('Snyk Monitor') {
+            steps {
+                dir(env.DIR_NAME) {
+                    sh 'snyk monitor --all-project'
+                }
+            }
+        }
+        stage('Trivy FS scan') {
+            steps {
+                dir(env.DIR_NAME) {
+                    sh "trivy fs . > trivyfs.json || true"
+                }
+            }
+        }
         stage('Docker Build'){
             steps {
                 script {
@@ -152,21 +150,21 @@ pipeline
                 }
             }
         }
-        // stage('Trivy scan image') {
-        //     steps {
-        //         sh '''
-        //             trivy image $REPO_IMAGE > trivy.json
-        //         '''
-        //     }
-        // }
-        // stage('Snyk scan image') {
-        //     steps {
-        //         sh '''
-        //             snyk container test $REPO_NAME
-        //             snyk container monitor $REPO_NAME
-        //         '''
-        //     }
-        // }
+        stage('Trivy scan image') {
+            steps {
+                sh '''
+                    trivy image $REPO_IMAGE > trivy.json
+                '''
+            }
+        }
+        stage('Snyk scan image') {
+            steps {
+                sh '''
+                    snyk container test $REPO_NAME
+                    snyk container monitor $REPO_NAME
+                '''
+            }
+        }
         stage('Remove container') {
             steps {
                 script {
@@ -199,7 +197,7 @@ pipeline
             }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                    sh """
+                    sh '''
                         echo "Deploying to development..."
 
                         aws ecs describe-task-definition \
@@ -248,7 +246,7 @@ pipeline
                             --task-definition $TASK_DEF_NAME:$NEW_REVISION
 
                         echo "Đã triển khai revision $NEW_REVISION cho service $SERVICE_NAME"
-                    """
+                    '''
                 }
             }
         }
