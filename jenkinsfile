@@ -42,50 +42,54 @@ pipeline
             }
         }
         stage('Check services') {
-            script {
-                def changedFiles = sh(script: "git diff --name-only $GIT_PREVIOUS_COMMIT $GIT_COMMIT", returnStdout: true).trim().split("\n")
+            steps {
+                script {
+                    def changedFiles = sh(script: "git diff --name-only $GIT_PREVIOUS_COMMIT $GIT_COMMIT", returnStdout: true).trim().split("\n")
 
-                def detectServices = ""
-                if (changedFiles.any { it.startsWith("user-service/auth/")}) {
-                    detectServices = "auth"
-                } else if (changedFiles.any { it.startsWith("user-service/user/")}) {
-                    detectServices = "user"
-                } else if (changedFiles.any { it.startsWith("task-service/task")}) {
-                    detectServices = "task"
-                }
+                    def detectServices = ""
+                    if (changedFiles.any { it.startsWith("user-service/auth/")}) {
+                        detectServices = "auth"
+                    } else if (changedFiles.any { it.startsWith("user-service/user/")}) {
+                        detectServices = "user"
+                    } else if (changedFiles.any { it.startsWith("task-service/task")}) {
+                        detectServices = "task"
+                    }
 
-                if ( detectServices == "") {
-                    error("Cannot find services need to update!")
+                    if ( detectServices == "") {
+                        error("Cannot find services need to update!")
+                    }
+                    env.SERVICES = detectServices
                 }
-                env.SERVICES = detectServices
             }
         }
         stage('Setup ENV') {
-            script {
-                def serviceNameMap = [
-                    'auth' : 'auth-service-muzique',
-                    'user' : 'user-service-muzique',
-                    'task' : 'task-service-muzique'
-                ]
-                def taskDefMap = [
-                    'auth' : 'task-definition-auth-muzique',
-                    'user' : 'task-definition-user-muzique',
-                    'task' : 'task-definition-task-muzique'
-                ]
-                def serviceMap = [
-                        'auth' : 'user-service/auth', 
-                        'user' : 'user-service/user',
-                        'task' :  'task-service'
-                ]
-                def portMap = [
-                        'auth' : 8000,
-                        'user' : 8000,
-                        'task' : 8000
-                ]
-                env.SERVICE_NAME = serviceNameMap[env.SERVICES]
-                env.TASK_DEF_NAME = taskDefMap[env.SERVICES]
-                env.DIR_NAME = serviceMap[env.SERVICES]
-                env.PORT = portMap[env.SERVICES]
+            steps {
+                script {
+                    def serviceNameMap = [
+                        'auth' : 'auth-service-muzique',
+                        'user' : 'user-service-muzique',
+                        'task' : 'task-service-muzique'
+                    ]
+                    def taskDefMap = [
+                        'auth' : 'task-definition-auth-muzique',
+                        'user' : 'task-definition-user-muzique',
+                        'task' : 'task-definition-task-muzique'
+                    ]
+                    def serviceMap = [
+                            'auth' : 'user-service/auth', 
+                            'user' : 'user-service/user',
+                            'task' :  'task-service'
+                    ]
+                    def portMap = [
+                            'auth' : 8000,
+                            'user' : 8000,
+                            'task' : 8000
+                    ]
+                    env.SERVICE_NAME = serviceNameMap[env.SERVICES]
+                    env.TASK_DEF_NAME = taskDefMap[env.SERVICES]
+                    env.DIR_NAME = serviceMap[env.SERVICES]
+                    env.PORT = portMap[env.SERVICES]
+                }
             }
         }
         // stage('Analys code - SonarQube') {
