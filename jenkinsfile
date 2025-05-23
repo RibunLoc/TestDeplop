@@ -49,7 +49,7 @@ pipeline
                         detectServices = "auth"
                     } else if (changedFiles.any { it.startsWith("user-service/user/")}) {
                         detectServices = "user"
-                    } else if (changedFiles.any { it.startsWith("task-service/task")}) {
+                    } else if (changedFiles.any { it.startsWith("task-service/")}) {
                         detectServices = "task"
                     }
 
@@ -215,8 +215,7 @@ pipeline
                             --query 'taskDefinition' > task-def.json
 
                         # Cập nhật image bằng jq
-                            jq --arg IMAGE "\$REPO_NAME" \
-                            --arg NAME "\$REPO_IMAGE" \
+                            jq --arg IMAGE "\$REPO_NAME" --arg NAME "\$REPO_IMAGE"
                             -f - task-def.json > new-task-def.json <<'EOF'
                                 .containerDefinitions |= map(
                                 if .name == $NAME then .image = $IMAGE else . end
@@ -256,65 +255,7 @@ pipeline
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                     sh """
-                        echo "Deploying to production: "
-                        aws ecs describe-task-definition \
-                        --task-definition ${env.TASK_DEF_NAME} \
-                        --query 'taskDefinition' > task-def.json
-
-                        # Tạo biến môi trường mới
-                        cat <<EOF > envs.json
-                            [
-                            { "name": "MYSQL_ROOT_PASSWORD", "value": "$MYSQL_ROOT_PASSWORD" },
-                            { "name": "MYSQL_DATABASE", "value": "$MYSQL_DATABASE" },
-                            { "name": "MYSQL_USER", "value": "$MYSQL_USER" },
-                            { "name": "MYSQL_PASSWORD", "value": "$MYSQL_PASSWORD" },
-                            { "name": "MYSQL_HOST", "value": "$MYSQL_HOST" },
-                            { "name": "MYSQL_PORT", "value": "$MYSQL_PORT" },
-                            { "name": "SECRET_KEY", "value": "$SECRET_KEY" }
-                            ]
-                        EOF
-
-                        # Tạo file JSON mới bằng jq
-                        cat task-def.json | jq \
-                            --arg IMAGE "\$REPO_NAME" \
-                            --arg NAME "\$REPO_IMAGE" \
-                            --slurpfile NEW_ENVS envs.json \
-                        '
-                        .containerDefinitions |= map(
-                            if .name == \$NAME then
-                            .image = \$IMAGE
-                            | .environment |= (
-                                reduce \$NEW_ENVS[0][] as \$new_var (
-                                    map(if .name == \$new_var.name then .value = \$new_var.value else . end)
-                                    | if any(.name == $new_var.name; true) then . else . + [$new_var] end
-                                )
-                                )
-                            else .
-                            end
-                        )
-                        | {
-                            family,
-                            containerDefinitions,
-                            executionRoleArn,
-                            taskRoleArn,
-                            networkMode,
-                            requiresCompatibilities,
-                            cpu,
-                            memory
-                        }
-                        ' > new-task-def.json
-
-
-                        # Đăng ký revision mới
-                        aws ecs register-task-definition --cli-input-json file://new-task-def.json > register-task.json
-                        
-                        # Update ECS service
-                        NEW_REVISION=\$(jq -r '.taskDefinition.revision' register-task.json)
-                        aws ecs update-service --cluster $CLUSTER_NAME --service ${env.SERVICE_NAME} --task-definition ${env.TASK_DEF_NAME}:$NEW_REVISION
-                        
-                        # Loại bỏ env.json
-                        rm -rf envs.json task-def.json new-task-def.json register-task.json
-
+                       
                         echo "Done"
                     """
                 }
