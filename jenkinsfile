@@ -227,7 +227,7 @@ pipeline
                                 containerDefinitions,
                                 executionRoleArn: select(.executionRoleArn != null),
                                 taskRoleArn: select(.taskRoleArn != null),
-                                networkMode: select(.requiresCompatibilities != null),
+                                networkMode: select(.networkMode != null),  
                                 requiresCompatibilities: select(.requiresCompatibilities != null),
                                 cpu: select(.cpu != null),
                                 memory: select(.memory != null)
