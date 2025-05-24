@@ -39,9 +39,7 @@ pipeline
                     if ( detectServices == "") {
                         error("Không thể tìm thấy dịch vụ cần update")
                     }
-                    if (detected.size() > 1) {
-
-
+    
                     env.SERVICES = detectServices
 
                     def secretMap = [
