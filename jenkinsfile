@@ -19,7 +19,7 @@ pipeline
     stages {
         stage('Git Checkout') {
             steps {
-                git branch: 'deploy', url: 'https://github.com/minhphuc2544/Muzique-Backend.git'
+                git branch: 'main', url: 'https://github.com/RibunLoc/TestDeplop.git'
             }
         }
         stage('Check services') {
