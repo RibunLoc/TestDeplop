@@ -81,7 +81,7 @@ pipeline
                     env.TASK_DEF_NAME = taskDefMap[env.SERVICES]
                     env.DIR_NAME = serviceMap[env.SERVICES]
                     env.PORT = portMap[env.SERVICES]
-                    env.REPO_IMAGE = "muzique-${env.SERVICES}-service"
+                    env.REPO_IMAGE = "${env.SERVICES}-service"
                     env.REPO_NAME = "${params.REPO_DOCKER_USER}/muzique-${env.SERVICES}-service:${params.TAG}"
 
                 }
