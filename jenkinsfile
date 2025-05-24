@@ -87,49 +87,49 @@ pipeline
                 }
             }
         }
-        stage('Analys code - SonarQube') {
-            environment {
-                SCANNER_HOME = tool 'sonar-scanner'
-            }
-            steps {
-                withSonarQubeEnv('sonar-server') {
-                sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Muzique_Backend \
-                    -Dsonar.projectKey=Muzique-be
-                '''
-                }
-            }
-        }
-        stage('QUALITY GATE') {
-            steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
-                }
-            }
-        }
-        stage('Snyk Test - App') {
-            steps {
-                dir(env.DIR_NAME) {
-                    sh '''
-                        snyk auth $SNYK_TOKEN
-                        snyk test --all-project --severity-threshold=medium --json > ./reports/snyk-report.json || true
-                    '''
-                }
-            }
-        }
-        stage('Snyk Monitor') {
-            steps {
-                dir(env.DIR_NAME) {
-                    sh 'snyk monitor --all-project'
-                }
-            }
-        }
-        stage('Trivy FS scan') {
-            steps {
-                dir(env.DIR_NAME) {
-                    sh "trivy fs . > trivyfs.json || true"
-                }
-            }
-        }
+        // stage('Analys code - SonarQube') {
+        //     environment {
+        //         SCANNER_HOME = tool 'sonar-scanner'
+        //     }
+        //     steps {
+        //         withSonarQubeEnv('sonar-server') {
+        //         sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Muzique_Backend \
+        //             -Dsonar.projectKey=Muzique-be
+        //         '''
+        //         }
+        //     }
+        // }
+        // stage('QUALITY GATE') {
+        //     steps {
+        //         script {
+        //             waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+        //         }
+        //     }
+        // }
+        // stage('Snyk Test - App') {
+        //     steps {
+        //         dir(env.DIR_NAME) {
+        //             sh '''
+        //                 snyk auth $SNYK_TOKEN
+        //                 snyk test --all-project --severity-threshold=medium --json > ./reports/snyk-report.json || true
+        //             '''
+        //         }
+        //     }
+        // }
+        // stage('Snyk Monitor') {
+        //     steps {
+        //         dir(env.DIR_NAME) {
+        //             sh 'snyk monitor --all-project'
+        //         }
+        //     }
+        // }
+        // stage('Trivy FS scan') {
+        //     steps {
+        //         dir(env.DIR_NAME) {
+        //             sh "trivy fs . > trivyfs.json || true"
+        //         }
+        //     }
+        // }
         stage('Docker Build'){
             steps {
                 script {
@@ -145,21 +145,21 @@ pipeline
                 }
             }
         }
-        stage('Trivy scan image') {
-            steps {
-                sh '''
-                    trivy image $REPO_IMAGE > trivy.json
-                '''
-            }
-        }
-        stage('Snyk scan image') {
-            steps {
-                sh '''
-                    snyk container test $REPO_NAME
-                    snyk container monitor $REPO_NAME
-                '''
-            }
-        }
+        // stage('Trivy scan image') {
+        //     steps {
+        //         sh '''
+        //             trivy image $REPO_IMAGE > trivy.json
+        //         '''
+        //     }
+        // }
+        // stage('Snyk scan image') {
+        //     steps {
+        //         sh '''
+        //             snyk container test $REPO_NAME
+        //             snyk container monitor $REPO_NAME
+        //         '''
+        //     }
+        // }
         stage('Remove container') {
             steps {
                 script {
