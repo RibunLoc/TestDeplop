@@ -208,19 +208,20 @@ pipeline
                                 .image = $IMAGE |
                                 . + {
                                     secrets: [
-                                    {
-                                        name: "APP_ENV",
-                                        valueFrom: $SECRET_ARN
-                                    }
+                                        {
+                                            name: "APP_ENV",
+                                            valueFrom: $SECRET_ARN
+                                        }
                                     ],
                                     logConfiguration: {
                                         logDriver: "awslogs",
                                         options: {
-                                        "awslogs-group": "/ecs/muzique",
-                                        "awslogs-region": "us-east-1",
-                                        "awslogs-stream-prefix": "ecs"
+                                            "awslogs-group": "/ecs/muzique",
+                                            "awslogs-region": "us-east-1",
+                                            "awslogs-stream-prefix": "ecs"
                                         }
                                     }
+                                }
                                 else
                                 .
                                 end
