@@ -204,7 +204,7 @@ pipeline
                         # Cập nhật image bằng jq
                         jq --arg IMAGE "$REPO_NAME" \
                             --arg NAME "$REPO_IMAGE" \
-                            --arg SECRET_ARN "$SECRET_ARN"
+                            --arg SECRET_ARN "$SECRET_ARN" '
                             .containerDefinitions |= map(
                                 if .name == $NAME then
                                 .image = $IMAGE |
