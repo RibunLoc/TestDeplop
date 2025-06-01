@@ -111,14 +111,8 @@ pipeline
                     sh '''
                         snyk auth $SNYK_TOKEN
                         snyk test --all-project --severity-threshold=medium --json > ./reports/snyk-report.json || true
+                        snyk monitor --all-project
                     '''
-                }
-            }
-        }
-        stage('Snyk Monitor') {
-            steps {
-                dir(env.DIR_NAME) {
-                    sh 'snyk monitor --all-project'
                 }
             }
         }
