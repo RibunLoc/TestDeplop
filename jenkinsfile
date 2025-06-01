@@ -185,8 +185,16 @@ pipeline
                 expression { params.ENVIRONMENT == 'dev' }
             }
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key'],
+                    [file(credentialsId: 'MYSQL-DOTENV', variable: 'ENV_FILE')],
+                    ]) {
                     sh '''
+                        # Load biến từ .env vào shell
+                        set -a
+                        . $ENV_FILE
+                        set +a
+
                         echo "Deploying to development..."
 
                         aws ecs describe-task-definition \
@@ -202,10 +210,13 @@ pipeline
                                 .image = $IMAGE |
                                 . + {
                                     secrets: [
-                                        {
-                                            name: "ENV",
-                                            valueFrom: $SECRET_ARN
-                                        }
+                                        {"name": "MYSQL_ROOT_PASSWORD", "value": $MYSQL_ROOT_PASSWORD},
+                                        {"name": "MYSQL_DATABASE", "value": $MYSQL_DATABASE},
+                                        {"name": "MYSQL_USER", "value": $MYSQL_USER},
+                                        {"name": "MYSQL_PASSWORD", "value": $MYSQL_PASSWORD},
+                                        {"name": "MYSQL_HOST", "value": $MYSQL_HOST},
+                                        {"name": "MYSQL_PORT", "value": $MYSQL_PORT},
+                                        {"name": "SECRET_KEY", "value": $SECRET_KEY}
                                     ],
                                     logConfiguration: {
                                         logDriver: "awslogs",
