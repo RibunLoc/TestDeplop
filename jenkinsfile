@@ -211,7 +211,7 @@ pipeline
                                 del(.environment) |
                                 . + {
                                     secrets: [
-                                        {"name": "APP_ENV", "valueFrom": $SECRET_ARN},
+                                        {"name": "APP_ENV", "valueFrom": $SECRET_ARN}
                                     ],
                                     logConfiguration: {
                                         logDriver: "awslogs",
