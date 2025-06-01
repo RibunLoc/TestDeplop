@@ -110,8 +110,8 @@ pipeline
                 dir(env.DIR_NAME) {
                     sh '''
                         snyk auth $SNYK_TOKEN
-                        snyk test --all-project --severity-threshold=medium --json > ./reports/snyk-report.json || true
-                        snyk monitor --all-project
+                        snyk test --all-projects --severity-threshold=medium --json > ./reports/snyk-report.json || true
+                        snyk monitor --all-projects
                     '''
                 }
             }
