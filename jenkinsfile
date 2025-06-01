@@ -187,7 +187,7 @@ pipeline
             steps {
                 withCredentials([
                         [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key'],
-                        [file(credentialsId: 'MYSQL-DOTENV', variable: 'ENV_FILE')]
+                        [$class: 'FileBinding', credentialsId: 'MYSQL-DOTENV', variable: 'ENV_FILE']
                     ]) {
                     sh '''
                         # Load biến từ .env vào shell
