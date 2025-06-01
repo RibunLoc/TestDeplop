@@ -215,7 +215,7 @@ pipeline
                                 if .name == $NAME then
                                 .image = $IMAGE |
                                 . + {
-                                    secrets: [
+                                    environment: [
                                         {"name": "MYSQL_ROOT_PASSWORD", "value": $MYSQL_ROOT_PASSWORD},
                                         {"name": "MYSQL_DATABASE", "value": $MYSQL_DATABASE},
                                         {"name": "MYSQL_USER", "value": $MYSQL_USER},
