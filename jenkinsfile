@@ -202,13 +202,10 @@ pipeline
                                 .image = $IMAGE |
                                 . + {
                                     secrets: [
-                                        {"name": "MYSQL_ROOT_PASSWORD", "valueFrom": $SECRET_ARN},
-                                        {"name": "MYSQL_DATABASE", "valueFrom": $SECRET_ARN},
-                                        {"name": "MYSQL_USER", "valueFrom": $SECRET_ARN},
-                                        {"name": "MYSQL_PASSWORD", "valueFrom": $SECRET_ARN},
-                                        {"name": "MYSQL_HOST", "valueFrom": $SECRET_ARN},
-                                        {"name": "MYSQL_PORT", "valueFrom": $SECRET_ARN},
-                                        {"name": "SECRET_KEY", "valueFrom": $SECRET_ARN}
+                                        {
+                                            name: "ENV",
+                                            valueFrom: $SECRET_ARN
+                                        }
                                     ],
                                     logConfiguration: {
                                         logDriver: "awslogs",
