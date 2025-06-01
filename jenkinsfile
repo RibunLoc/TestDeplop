@@ -186,8 +186,8 @@ pipeline
             }
             steps {
                 withCredentials([
-                    [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key'],
-                    [file(credentialsId: 'MYSQL-DOTENV', variable: 'ENV_FILE')],
+                        [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key'],
+                        [file(credentialsId: 'MYSQL-DOTENV', variable: 'ENV_FILE')]
                     ]) {
                     sh '''
                         # Load biến từ .env vào shell
@@ -247,7 +247,6 @@ pipeline
                                 cpu,
                                 memory
                             }' task-def.json > new-task-def.json
-                            
                         # Đăng ký revision mới
                         aws ecs register-task-definition --cli-input-json file://new-task-def.json > register-task.json
 
