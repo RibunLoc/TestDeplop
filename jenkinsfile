@@ -109,9 +109,10 @@ pipeline
             steps {
                 dir(env.DIR_NAME) {
                     sh '''
+                        mkdir -p ./reports
                         snyk auth $SNYK_TOKEN
                         snyk test --all-projects --severity-threshold=medium --json > ./reports/snyk-report.json || true
-                        snyk monitor --all-projects
+                        snyk monitor --all-projects || true
                     '''
                 }
             }
