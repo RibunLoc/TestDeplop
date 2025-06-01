@@ -214,6 +214,7 @@ pipeline
                             .containerDefinitions |= map(
                                 if .name == $NAME then
                                 .image = $IMAGE |
+                                del(.secrets) |
                                 . + {
                                     environment: [
                                         {"name": "MYSQL_ROOT_PASSWORD", "value": $MYSQL_ROOT_PASSWORD},
