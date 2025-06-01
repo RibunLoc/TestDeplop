@@ -1,60 +1,74 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
+	"github.com/minhphuc2544/DevOps-Backend/task-service/internal/models"
 	"github.com/minhphuc2544/DevOps-Backend/task-service/internal/routes"
-	"github.com/minhphuc2544/DevOps-Backend/task-service/internal/utils"
-    "github.com/minhphuc2544/DevOps-Backend/task-service/internal/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 func corsMiddleware(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("Access-Control-Allow-Origin", "*") // Allow all origins
-        w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
-        w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow all origins
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-        if r.Method == "OPTIONS" {
-            w.WriteHeader(http.StatusNoContent)
-            return
-        }
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
 
-        next.ServeHTTP(w, r)
-    })
+		next.ServeHTTP(w, r)
+	})
+}
+
+func getEnvFromAPP_ENV() map[string]string {
+	raw := os.Getenv("APP_ENV")
+	if raw == "" {
+		log.Fatal("Missing APP_ENV variable")
+	}
+	envMap := make(map[string]string)
+	err := json.Unmarshal([]byte(raw), &envMap)
+	if err != nil {
+		log.Fatalf("Failed to parse APP_ENV as JSON: %v\nRaw: %s", err, raw)
+	}
+	return envMap
 }
 
 func main() {
-    envPath, err := utils.LoadEnv()
-    if err != nil {
-        log.Fatalf("Error loading .env file: %v", err)
-    }
+	env := getEnvFromAPP_ENV()
 
-    // Load the .env file
-    err = godotenv.Load(envPath)
-    if err != nil {
-        log.Fatalf("Error loading .env file from %s: %v", envPath, err)
-    }
-    dsn := os.Getenv("MYSQL_USER") + ":" + os.Getenv("MYSQL_PASSWORD") + "@tcp(" + os.Getenv("MYSQL_HOST") + ":" + os.Getenv("MYSQL_PORT") + ")/" + os.Getenv("MYSQL_DATABASE")
+	fmt.Printf("MYSQL_HOST: %s\n", env["MYSQL_HOST"])
 
-    // Establish a database connection
-    db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-    if err != nil {
-        log.Fatalf("Failed to connect to the database: %v", err)
-    }
-    err = db.AutoMigrate(&models.Music{}, &models.UserPlaylist{}, &models.Playlist{})
+	dsn := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		env["MYSQL_USER"],
+		env["MYSQL_PASSWORD"],
+		env["MYSQL_HOST"],
+		env["MYSQL_PORT"],
+		env["MYSQL_DATABASE"],
+	)
+
+	// Load the .env file
+	// Establish a database connection
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("Failed to connect to the database: %v", err)
+	}
+	err = db.AutoMigrate(&models.Music{}, &models.UserPlaylist{}, &models.Playlist{})
 	if err != nil {
 		log.Fatal("Migration failed: ", err)
 	}
-    log.Println("Successfully connected to the database.")
+	log.Println("Successfully connected to the database.")
 
-    router := routes.SetupRoutes(db) // Setup the routes
-    log.Println("Starting server on :8080...")
-    // Start the server on port 8080
-    log.Fatal(http.ListenAndServe(":8080", corsMiddleware(router)))
+	router := routes.SetupRoutes(db)
+	log.Println("Starting server on :8080...")
+	log.Fatal(http.ListenAndServe(":8080", corsMiddleware(router)))
 }

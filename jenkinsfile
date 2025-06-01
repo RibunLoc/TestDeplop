@@ -204,26 +204,14 @@ pipeline
                         # Cập nhật image bằng jq
                         jq --arg IMAGE "$REPO_NAME" \
                             --arg NAME "$REPO_IMAGE" \
-                            --arg MYSQL_DATABASE "$MYSQL_DATABASE" \
-                            --arg MYSQL_PASSWORD "$MYSQL_PASSWORD" \
-                            --arg MYSQL_PORT "$MYSQL_PORT" \
-                            --arg MYSQL_USER "$MYSQL_USER" \
-                            --arg MYSQL_HOST "$MYSQL_HOST" \
-                            --arg MYSQL_ROOT_PASSWORD "$MYSQL_ROOT_PASSWORD" \
-                            --arg SECRET_KEY "$SECRET_KEY" '
+                            --arg SECRET_ARN "$SECRET_ARN"
                             .containerDefinitions |= map(
                                 if .name == $NAME then
                                 .image = $IMAGE |
-                                del(.secrets) |
+                                del(.environment) |
                                 . + {
-                                    environment: [
-                                        {"name": "MYSQL_ROOT_PASSWORD", "value": $MYSQL_ROOT_PASSWORD},
-                                        {"name": "MYSQL_DATABASE", "value": $MYSQL_DATABASE},
-                                        {"name": "MYSQL_USER", "value": $MYSQL_USER},
-                                        {"name": "MYSQL_PASSWORD", "value": $MYSQL_PASSWORD},
-                                        {"name": "MYSQL_HOST", "value": $MYSQL_HOST},
-                                        {"name": "MYSQL_PORT", "value": $MYSQL_PORT},
-                                        {"name": "SECRET_KEY", "value": $SECRET_KEY}
+                                    secrets: [
+                                        {"name": "APP_ENV", "valueFrom": $SECRET_ARN},
                                     ],
                                     logConfiguration: {
                                         logDriver: "awslogs",
