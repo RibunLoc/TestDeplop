@@ -3,13 +3,11 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 )
 
 func ExtractToken(r *http.Request) (string, error) {
@@ -30,19 +28,9 @@ func VerifyJWT(r *http.Request) (jwt.MapClaims, error) {
 		return nil, err
 	}
 
-	envPath, err := LoadEnv()
-    if err != nil {
-        log.Fatalf("Error loading .env file: %v", err)
-    }
-
-    // Load the .env file
-    err = godotenv.Load(envPath)
-	if err != nil {
-		log.Fatalf("Error loading .env file from %s: %v", envPath, err)
-	}
-	
-	jwtSecret := []byte(os.Getenv("JWT_SECRET_KEY"))
-	if jwtSecret == nil {
+	// KHÔNG load env file nữa khi chạy production
+	jwtSecret := os.Getenv("JWT_SECRET_KEY")
+	if jwtSecret == "" {
 		return nil, errors.New("JWT secret key not found in environment variables")
 	}
 
@@ -52,7 +40,7 @@ func VerifyJWT(r *http.Request) (jwt.MapClaims, error) {
 		}
 		return []byte(jwtSecret), nil
 	})
-	
+
 	if err != nil || !token.Valid {
 		return nil, errors.New("invalid token")
 	}
