@@ -100,13 +100,6 @@
                             }
                         }
                     }
-                    stage('QUALITY GATE') {
-                        steps {
-                            script {
-                                waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
-                            }
-                        }
-                    }
                     stage('Snyk Test - App') {
                         steps {
                             dir(env.DIR_NAME) {
@@ -125,6 +118,13 @@
                                 sh "trivy fs . > trivyfs.json || true"
                             }
                         }
+                    }
+                }
+            }
+            stage('QUALITY GATE') {
+                steps {
+                    script {
+                        waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
                     }
                 }
             }
