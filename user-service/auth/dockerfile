@@ -1,3 +1,4 @@
+# sagte 1: builder
 FROM golang:1.24.1-alpine AS builder
 WORKDIR /app
 COPY . .
@@ -5,6 +6,7 @@ RUN apk add --no-cache git
 RUN go mod download
 RUN go build -o app ./cmd/main.go
 
+# stage 2: Image chạy runtime nhỏ gọn
 FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/app .
