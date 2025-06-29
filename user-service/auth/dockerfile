@@ -11,3 +11,4 @@ COPY --from=builder /app/app .
 RUN touch .env          # tạo file .env rỗng
 EXPOSE 8080
 CMD ["./app"]
+# docker build -t user-service-auth .
